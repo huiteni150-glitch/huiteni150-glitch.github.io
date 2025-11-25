@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DeepFlow Pro - Flow Edition</title>
+    <title>DeepFlow Pro v4</title>
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,14 +16,16 @@
         /* --- 顶级审美基础设置 --- */
         :root {
             --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(15, 15, 20, 0.7);
+            --glass-bg: rgba(20, 20, 25, 0.6);
+            --glass-bg-heavy: rgba(15, 15, 20, 0.85);
             --glass-highlight: rgba(255, 255, 255, 0.03);
-            --accent-primary: #818cf8;
+            --accent-primary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.4);
         }
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background-color: #020617; /* Deep Slate */
+            background-color: #050505;
             color: #f8fafc;
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
@@ -34,275 +36,343 @@
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: 
-                radial-gradient(circle at 10% 20%, rgba(49, 46, 129, 0.15), transparent 40%), 
-                radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.3), transparent 40%);
+                radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%), 
+                radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.1), transparent 25%);
             z-index: -1;
+            filter: blur(60px);
+            animation: bg-pulse 10s ease-in-out infinite alternate;
+        }
+        @keyframes bg-pulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
         }
 
-        /* --- 高级玻璃拟态 --- */
+        /* --- 玻璃拟态卡片 --- */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 0 var(--glass-highlight);
-        }
-
-        .glass-modal {
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* --- 动画关键帧 --- */
-        @keyframes breathe-glow {
-            0%, 100% { transform: scale(1); opacity: 0.3; box-shadow: 0 0 30px rgba(99, 102, 241, 0.2); }
-            50% { transform: scale(1.1); opacity: 0.6; box-shadow: 0 0 60px rgba(99, 102, 241, 0.5); }
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                inset 0 1px 0 0 var(--glass-highlight);
         }
         
-        @keyframes float-gentle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .glass-overlay {
+            background: var(--glass-bg-heavy);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
         }
 
-        @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.2); }
+        .glass-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            border-color: var(--accent-primary);
+            outline: none;
         }
 
-        @keyframes pulse-panic {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        /* --- 呼吸灯按钮 (Panic Button) --- */
+        .panic-btn {
+            background: radial-gradient(circle at center, #4f46e5 0%, #312e81 100%);
+            box-shadow: 0 0 30px var(--accent-glow);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .panic-btn.urgent {
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.6); /* Red glow */
+            animation: urgent-pulse 2s infinite ease-in-out;
+            transform: scale(1.1) translateY(-10px);
+        }
+        @keyframes urgent-pulse {
+            0% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); transform: scale(1.1) translateY(-10px); }
+            50% { box-shadow: 0 0 60px rgba(239, 68, 68, 0.8); transform: scale(1.15) translateY(-10px); }
+            100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); transform: scale(1.1) translateY(-10px); }
         }
 
-        /* --- 实用类 --- */
+        /* --- 气泡浮动动画 --- */
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(0, 6px); }
+            100% { transform: translate(0, 0); }
+        }
+        .bubble-float { animation: float 6s ease-in-out infinite; }
+
+        /* --- 呼吸圆环 (Focus Mode) --- */
+        .breathing-circle {
+            animation: breathe-rhythm 8s infinite ease-in-out; /* 4s in, 4s out */
+        }
+        @keyframes breathe-rhythm {
+            0%, 100% { transform: scale(1); opacity: 0.3; box-shadow: 0 0 0px var(--accent-primary); }
+            50% { transform: scale(1.3); opacity: 0.6; box-shadow: 0 0 40px var(--accent-primary); }
+        }
+
+        /* --- 红色危机光晕 (DDL) --- */
+        .glow-danger {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .breathing-circle { animation: breathe-glow 8s infinite ease-in-out; }
-        .urgent-glow { animation: pulse-red 2s infinite; border-color: rgba(239, 68, 68, 0.5) !important; }
-        .panic-active { animation: pulse-panic 2s infinite; z-index: 50; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
         
-        .slide-up-enter-active, .slide-up-leave-active { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide-up-enter-active, .slide-up-leave-active { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .slide-up-enter-from { transform: translateY(100%); }
         .slide-up-leave-to { transform: translateY(100%); }
     </style>
 </head>
-<body class="text-slate-200">
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
 
-<div id="app" class="h-screen w-full flex flex-col relative overflow-hidden">
+<div id="app" class="h-screen w-full flex flex-col relative">
 
     <div class="ambient-bg"></div>
 
-    <header class="px-6 py-4 pt-8 flex justify-between items-center z-20 shrink-0">
-        <div class="flex items-center gap-3" @click="toggleCalendarMode">
-            <h1 class="text-xl font-bold tracking-tight">{{ currentMonthName }}</h1>
-            <i :class="isCalendarExpanded ? 'rotate-180' : ''" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform duration-300"></i>
+    <header class="px-6 py-4 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold shadow-lg">DF</div>
+            <span class="text-sm font-medium tracking-wide text-slate-300">{{ getCurrentGreeting() }}</span>
         </div>
-        
-        <div class="flex items-center gap-2 glass-panel rounded-full px-3 py-1.5">
-            <i data-lucide="zap" class="w-3 h-3" :class="energyLevel < 30 ? 'text-red-400' : 'text-yellow-400'"></i>
-            <input type="range" v-model="energyLevel" min="0" max="100" class="w-16 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+        <div class="flex items-center gap-2">
+            <button @click="view = 'energy'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel hover:bg-white/5 transition active:scale-95">
+                <i data-lucide="zap" class="w-3 h-3" :class="getEnergyColor()"></i>
+                <span class="text-xs font-mono text-slate-300">{{ energyLevel }}%</span>
+            </button>
+            <button @click="view = 'settings'" class="p-2 rounded-full hover:bg-white/10 transition text-slate-400">
+                <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+            </button>
         </div>
     </header>
 
-    <section class="px-4 pb-2 z-20 transition-all duration-300 ease-in-out" :class="isCalendarExpanded ? 'h-auto' : 'h-16'">
-        <div class="grid grid-cols-7 text-center mb-2">
-            <span v-for="d in ['S','M','T','W','T','F','S']" class="text-[10px] text-slate-500 font-medium">{{d}}</span>
-        </div>
+    <main class="flex-1 relative overflow-hidden z-10 flex flex-col">
         
-        <div class="grid grid-cols-7 gap-y-2 text-center transition-all">
-            <template v-for="(day, index) in visibleCalendarDays" :key="index">
-                <div @click="selectDate(day)" 
-                     class="flex flex-col items-center justify-center h-10 w-8 mx-auto rounded-xl cursor-pointer transition relative"
-                     :class="isSelectedDate(day) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400 hover:bg-white/5'">
-                    
-                    <span class="text-xs font-medium">{{ day ? day.getDate() : '' }}</span>
-                    
-                    <div v-if="day && hasTaskOnDate(day)" class="flex gap-0.5 mt-1">
-                        <div v-if="hasCompletedTask(day)" class="w-1 h-1 rounded-full bg-green-400 shadow-[0_0_5px_rgba(74,222,128,0.5)]"></div>
-                        <div v-else class="w-1 h-1 rounded-full bg-slate-600"></div>
-                    </div>
-                </div>
-            </template>
-        </div>
-    </section>
-
-    <main class="flex-1 relative overflow-y-auto no-scrollbar px-4 pb-32 pt-4">
-        
-        <div class="mb-8 px-2">
-            <p class="text-sm text-indigo-300 font-medium mb-1">{{ energyAdvice }}</p>
-            <h2 class="text-3xl font-bold text-white">{{ filteredTasks.length > 0 ? '顺势而为' : '此刻平静' }}</h2>
-        </div>
-
-        <div class="flex flex-wrap content-start gap-4 min-h-[300px]">
-            <transition-group name="fade">
+        <transition name="fade" mode="out-in">
+            
+            <div v-if="view === 'dashboard'" key="dashboard" class="flex-1 flex flex-col h-full overflow-hidden">
                 
-                <div v-for="task in filteredTasks" :key="task.id" 
-                     @click="openSoftStart(task)"
-                     class="glass-panel rounded-3xl p-5 flex flex-col justify-between cursor-pointer transition-all hover:scale-[1.02] hover:bg-white/10 active:scale-95 relative overflow-hidden group w-full"
-                     :class="[getTaskSizeClass(task), isUrgent(task) ? 'urgent-glow' : '']">
-                    
-                    <div class="flex justify-between items-start">
-                        <div class="pr-4">
-                            <span class="text-lg font-medium text-slate-100 leading-snug">{{ task.title }}</span>
+                <div class="px-4 mb-2 shrink-0">
+                    <div class="glass-panel rounded-2xl p-4 transition-all duration-500" :class="isCalendarExpanded ? 'h-auto' : 'h-24'">
+                        <div class="flex justify-between items-center mb-4">
+                            <button @click="changeMonth(-1)" class="p-1 hover:text-white text-slate-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                            <button @click="isCalendarExpanded = !isCalendarExpanded" class="text-sm font-bold flex items-center gap-2">
+                                {{ formatMonth(calendarCursor) }}
+                                <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="{'rotate-180': isCalendarExpanded}"></i>
+                            </button>
+                            <button @click="changeMonth(1)" class="p-1 hover:text-white text-slate-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                            <div v-for="d in ['S','M','T','W','T','F','S']" class="text-slate-600 mb-2">{{ d }}</div>
+                            
+                            <div v-for="day in calendarDays" :key="day.key" 
+                                 @click="selectDate(day)"
+                                 class="aspect-square flex flex-col items-center justify-center rounded-lg cursor-pointer transition relative"
+                                 :class="[
+                                    day.isToday ? 'text-indigo-400 font-bold' : 'text-slate-300',
+                                    day.isSelected ? 'bg-indigo-600 text-white' : 'hover:bg-white/5',
+                                    !day.inMonth ? 'opacity-20' : ''
+                                 ]">
+                                <span>{{ day.date.getDate() }}</span>
+                                <div class="flex gap-0.5 mt-1">
+                                    <div v-if="day.hasCompleted" class="w-1 h-1 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]"></div>
+                                    <div v-if="day.hasTask" class="w-1 h-1 rounded-full bg-slate-500"></div>
+                                </div>
                             </div>
-                        <div v-if="task.category" class="px-2 py-0.5 rounded-full bg-white/5 text-[10px] text-slate-400 border border-white/5">
-                            {{ task.category }}
-                        </div>
-                    </div>
-
-                    <div class="mt-4 flex items-center justify-between">
-                        <div class="flex items-center gap-1.5 text-xs text-slate-500">
-                            <i data-lucide="clock" class="w-3 h-3"></i>
-                            <span>{{ task.deadline ? formatDeadline(task.deadline) : '无期限' }}</span>
-                        </div>
-                        <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <i data-lucide="play" class="w-4 h-4 text-indigo-400 fill-indigo-400"></i>
                         </div>
                     </div>
                 </div>
 
-                <div key="add-btn" @click="showAddTask = true" class="w-full h-20 rounded-3xl border border-dashed border-slate-800 flex items-center justify-center text-slate-600 hover:text-slate-400 hover:border-slate-600 cursor-pointer transition">
-                    <span class="text-sm font-medium">+ 放下一个念头</span>
+                <div class="flex-1 overflow-y-auto no-scrollbar p-6 pb-32">
+                    
+                    <div v-if="energyLevel < 30 && activeTasks.length > 1" class="text-center mb-6 animate-pulse">
+                        <span class="text-xs text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                            能量过低保护模式：已隐藏复杂任务
+                        </span>
+                    </div>
+
+                    <div v-if="dateFilteredTasks.length === 0" class="flex flex-col items-center justify-center h-48 opacity-40">
+                        <i data-lucide="coffee" class="w-10 h-10 mb-2 text-slate-500"></i>
+                        <p class="text-sm">此刻无事。</p>
+                        <button @click="openAddTask" class="mt-4 text-xs text-indigo-400">添加</button>
+                    </div>
+
+                    <div class="flex flex-wrap content-start justify-center gap-5 min-h-[200px]">
+                        <div v-for="(task, index) in visibleTasks" :key="task.id"
+                             @click="openTaskAction(task)"
+                             class="glass-panel rounded-full flex flex-col items-center justify-center text-center p-5 cursor-pointer transition-all duration-500 hover:scale-105 bubble-float relative group"
+                             :class="[
+                                 'bubble-delay-' + (index % 3 + 1),
+                                 isUrgent(task) ? 'glow-danger' : 'hover:border-indigo-500/50'
+                             ]"
+                             :style="getBubbleStyle(task)">
+                            
+                             <span class="text-sm font-medium leading-tight group-hover:text-white transition-colors">{{ task.title }}</span>
+                             <span v-if="task.deadline" class="text-[9px] mt-1 opacity-70" :class="isUrgent(task) ? 'text-red-300 font-bold' : ''">
+                                {{ formatTimeShort(task.deadline) }}
+                             </span>
+                        </div>
+
+                         <div @click="openAddTask" class="w-14 h-14 rounded-full border border-dashed border-slate-700 flex items-center justify-center text-slate-600 hover:text-white hover:border-slate-500 hover:bg-white/5 cursor-pointer transition bubble-float bubble-delay-3">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else-if="view === 'panic'" key="panic" class="h-full w-full flex flex-col p-6 max-w-xl mx-auto">
+                <div id="chat-container" class="flex-1 overflow-y-auto no-scrollbar mb-4 pt-4 space-y-4">
+                    <div v-for="(msg, i) in chatHistory" :key="i" class="flex w-full" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+                        <div class="max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg backdrop-blur-md"
+                             :class="msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'glass-panel text-slate-200 rounded-bl-none border-l-2 border-indigo-400'">
+                            <p class="whitespace-pre-wrap">{{ msg.content }}</p>
+                            <div v-if="msg.actions && !msg.actionTaken" class="mt-3 flex gap-2">
+                                <button v-for="act in msg.actions" @click="handleAiAction(act, i)" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs border border-white/5">
+                                    {{ act.label }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="isAiTyping" class="text-xs text-slate-500 ml-2 animate-pulse">AI 正在温柔思考...</div>
                 </div>
 
-            </transition-group>
+                <div v-if="panicMode === 'steps'" class="mb-20 glass-panel p-6 rounded-3xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 h-1 bg-green-500 transition-all duration-500" :style="{width: stepProgress + '%'}"></div>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-4">微步骤 {{ currentStepIndex + 1 }}/{{ currentSteps.length }}</p>
+                    <h2 class="text-2xl font-bold text-white mb-8">{{ currentSteps[currentStepIndex] }}</h2>
+                    <button @click="completeStep" class="w-full py-4 rounded-2xl bg-green-600 text-white font-bold shadow-lg active:scale-95 transition">我做到了</button>
+                    <button @click="negotiateStep" class="mt-4 text-xs text-slate-500 w-full">这步太难了</button>
+                </div>
 
-            <div v-if="hiddenTaskCount > 0" class="w-full text-center py-4 opacity-50">
-                <i data-lucide="cloud-fog" class="w-5 h-5 mx-auto mb-1"></i>
-                <p class="text-xs">已为你隐藏 {{ hiddenTaskCount }} 个复杂任务，专心做这一个就好。</p>
+                <div v-else class="mb-20 relative">
+                    <textarea v-model="userInput" @keydown.enter.prevent="sendMessage" placeholder="告诉我，什么让你卡住了..." class="glass-input w-full p-4 pr-12 rounded-2xl h-14 resize-none text-sm"></textarea>
+                    <button @click="sendMessage" :disabled="!userInput.trim()" class="absolute right-2 top-2 p-2.5 bg-indigo-600 rounded-xl text-white disabled:opacity-50">
+                        <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div v-else-if="view === 'energy'" key="energy" class="h-full flex flex-col justify-center items-center p-8 text-center max-w-md mx-auto">
+                <i data-lucide="battery-charging" class="w-12 h-12 text-indigo-400 mb-4"></i>
+                <h2 class="text-2xl font-bold mb-10">你现在的电量是多少？</h2>
+                
+                <div class="w-full mb-12">
+                    <input type="range" v-model="energyLevel" min="0" max="100" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                    <div class="mt-4 text-3xl font-mono font-bold" :class="getEnergyColor(true)">{{ energyLevel }}%</div>
+                    <p class="text-sm text-slate-400 mt-2">
+                        <span v-if="energyLevel < 30">精疲力尽 (只保留最简单的)</span>
+                        <span v-else-if="energyLevel < 60">有点累 (只显示重要 3 件)</span>
+                        <span v-else>精力充沛 (显示全部)</span>
+                    </p>
+                </div>
+                <button @click="view = 'dashboard'" class="px-10 py-3 bg-slate-700 rounded-full text-white font-medium hover:bg-slate-600 transition">确认</button>
+            </div>
+            
+            <div v-else-if="view === 'settings'" key="settings" class="p-6 pt-12">
+                <h2 class="text-2xl font-bold mb-4">设置</h2>
+                <div class="glass-panel p-4 rounded-xl">
+                    <label class="text-xs text-slate-400 block mb-2">Gemini API Key</label>
+                    <input type="password" v-model="tempKey" class="glass-input w-full p-3 rounded-lg mb-4 text-sm">
+                    <button @click="saveKey" class="w-full py-2 bg-indigo-600 rounded-lg text-white text-sm">保存</button>
+                </div>
+            </div>
+
+        </transition>
+
+        <div v-if="showAddTask" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
+            <div class="glass-panel w-full max-w-xs p-5 rounded-3xl animate-[float_0.3s_ease-out]">
+                <h3 class="text-lg font-bold mb-3">新的念头</h3>
+                <input v-model="newTaskTitle" placeholder="我想..." class="glass-input w-full p-3 rounded-xl mb-3 text-base">
+                <div class="flex gap-2 mb-4">
+                     <button @click="newTaskCategory='琐事'" :class="newTaskCategory==='琐事'?'bg-indigo-600 text-white':'bg-white/5 text-slate-400'" class="px-3 py-1 text-xs rounded-full">琐事</button>
+                     <button @click="newTaskCategory='工作'" :class="newTaskCategory==='工作'?'bg-indigo-600 text-white':'bg-white/5 text-slate-400'" class="px-3 py-1 text-xs rounded-full">重要</button>
+                </div>
+                <div class="mb-4 flex items-center gap-2">
+                    <span class="text-xs text-slate-500">DDL:</span>
+                    <input type="datetime-local" v-model="newTaskDeadline" class="bg-transparent text-xs text-white border-b border-slate-700 focus:outline-none">
+                </div>
+                <div class="flex gap-3">
+                    <button @click="showAddTask = false" class="flex-1 py-3 text-slate-400 text-sm">取消</button>
+                    <button @click="addTask" class="flex-1 py-3 bg-indigo-600 rounded-xl text-white font-bold text-sm">放下</button>
+                </div>
             </div>
         </div>
+
     </main>
 
-    <div class="absolute bottom-8 left-0 w-full flex justify-center items-end pointer-events-none z-30">
-        <div class="glass-panel px-4 py-3 rounded-full flex items-center gap-6 pointer-events-auto shadow-2xl shadow-black/80">
-            <button @click="currentView = 'history'" class="p-2 text-slate-500 hover:text-white transition">
-                <i data-lucide="archive" class="w-6 h-6"></i>
-            </button>
-
-            <button @click="startPanicMode" 
-                    class="relative -mt-8 w-20 h-20 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-lg shadow-indigo-500/40 transition-transform active:scale-90"
-                    :class="shouldPanicPulse ? 'panic-active' : ''">
-                <i data-lucide="life-buoy" class="w-10 h-10 text-white"></i>
-            </button>
-
-            <button @click="currentView = 'settings'" class="p-2 text-slate-500 hover:text-white transition">
-                <i data-lucide="settings" class="w-6 h-6"></i>
-            </button>
-        </div>
-    </div>
-
-    <div v-if="showSoftStart && selectedTask" class="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
-        <div class="glass-modal w-full max-w-sm p-6 rounded-3xl animate-[float_0.4s_ease-out]">
-            <h3 class="text-xl font-bold mb-2 text-center">{{ selectedTask.title }}</h3>
-            <p class="text-slate-400 text-center text-sm mb-8">面对这个任务，你现在的感觉是？</p>
+    <div class="absolute bottom-6 left-0 w-full px-6 flex justify-center z-30 pointer-events-none">
+        <nav class="glass-panel px-2 py-2 rounded-full flex gap-1 pointer-events-auto shadow-2xl items-center">
+            <button @click="view = 'dashboard'" :class="view === 'dashboard' ? 'text-white' : 'text-slate-500'" class="p-3 rounded-full transition"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
             
-            <div class="grid grid-cols-2 gap-4">
-                <button @click="startFocusMode(selectedTask)" class="group relative flex flex-col items-center justify-center p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition">
-                    <i data-lucide="timer" class="w-8 h-8 text-emerald-400 mb-2 group-hover:scale-110 transition"></i>
-                    <span class="font-bold text-emerald-300">只做 2 分钟</span>
-                    <span class="text-[10px] text-emerald-500/70 mt-1">无需做完</span>
-                </button>
-                
-                <button @click="triggerAiBreakdown(selectedTask)" class="group relative flex flex-col items-center justify-center p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 transition">
-                    <i data-lucide="layers" class="w-8 h-8 text-indigo-400 mb-2 group-hover:scale-110 transition"></i>
-                    <span class="font-bold text-indigo-300">太难了</span>
-                    <span class="text-[10px] text-indigo-500/70 mt-1">帮我切碎它</span>
-                </button>
-            </div>
-            
-            <button @click="showSoftStart = false" class="w-full mt-6 py-3 text-slate-500 text-sm">先不做了</button>
-        </div>
+            <button @click="startPanicMode('')" 
+                    :class="{'urgent w-20 h-20 -mt-8': needsRescue, 'w-14 h-14 -mt-4': !needsRescue}"
+                    class="mx-4 panic-btn rounded-full flex items-center justify-center text-white relative">
+                <i data-lucide="life-buoy" :class="needsRescue ? 'w-8 h-8' : 'w-6 h-6'"></i>
+            </button>
+
+            <button @click="view = 'history'" :class="view === 'history' ? 'text-white' : 'text-slate-500'" class="p-3 rounded-full transition"><i data-lucide="archive" class="w-5 h-5"></i></button>
+        </nav>
     </div>
 
     <transition name="slide-up">
-        <div v-if="isFocusMode" class="fixed inset-0 z-[60] bg-[#020617] flex flex-col items-center justify-center">
-            <button @click="exitFocusMode" class="absolute top-8 right-8 text-slate-600 hover:text-white">
-                <i data-lucide="x" class="w-8 h-8"></i>
-            </button>
-
-            <div class="relative w-72 h-72 flex items-center justify-center mb-16">
-                <div class="absolute w-full h-full rounded-full bg-indigo-500/10 blur-3xl breathing-circle"></div>
-                <div class="absolute w-48 h-48 rounded-full bg-indigo-400/20 blur-2xl breathing-circle" style="animation-delay: -2s"></div>
+        <div v-if="showTaskActionModal && selectedTask" class="fixed inset-0 z-40 flex items-end justify-center pointer-events-none">
+            <div class="absolute inset-0 bg-black/50 pointer-events-auto" @click="showTaskActionModal = false"></div>
+            <div class="glass-panel w-full max-w-md rounded-t-3xl p-6 pointer-events-auto pb-10 transform transition-transform duration-300">
+                <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-6"></div>
+                <h3 class="text-xl font-bold mb-1 text-center">{{ selectedTask.title }}</h3>
+                <p class="text-center text-slate-400 text-sm mb-8">别想太多，选一个简单的开始方式。</p>
                 
-                <div class="relative z-10 text-center">
-                    <div class="text-7xl font-light font-mono tracking-wider text-slate-100">{{ focusTimeDisplay }}</div>
-                    <div class="text-sm text-slate-500 mt-4 tracking-widest uppercase">Flow State</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button @click="startFocusSession('countdown')" class="glass-input border-green-500/30 hover:bg-green-500/10 p-4 rounded-2xl flex flex-col items-center gap-2 transition">
+                        <i data-lucide="timer" class="w-6 h-6 text-green-400"></i>
+                        <span class="text-sm font-bold text-green-100">只做 2 分钟</span>
+                    </button>
+                    
+                    <button @click="startAiBreakdown" class="glass-input border-purple-500/30 hover:bg-purple-500/10 p-4 rounded-2xl flex flex-col items-center gap-2 transition">
+                        <i data-lucide="wand-2" class="w-6 h-6 text-purple-400"></i>
+                        <span class="text-sm font-bold text-purple-100">太难了，帮我拆</span>
+                    </button>
                 </div>
-            </div>
-
-            <div class="text-center px-8 mb-12">
-                <h3 class="text-xl font-medium text-slate-300 mb-2">{{ activeFocusTask?.title }}</h3>
-                <p class="text-slate-500 text-sm">如果你想停下来，随时都可以。</p>
-            </div>
-
-            <button @click="completeTaskInFocus" class="px-12 py-4 rounded-full bg-white text-black font-bold text-lg hover:scale-105 transition shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-                我做完了
-            </button>
-        </div>
-    </transition>
-
-    <transition name="slide-up">
-        <div v-if="currentView === 'panic'" class="fixed inset-0 z-[55] bg-slate-900 flex flex-col">
-            <div class="p-4 flex justify-between items-center bg-slate-800/50">
-                <span class="font-bold text-indigo-300">AI 辅助</span>
-                <button @click="currentView = 'dashboard'" class="p-2 bg-slate-700 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            
-            <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <div v-for="(msg, i) in chatHistory" :key="i" class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-                    <div class="max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed" 
-                         :class="msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200'">
-                        {{ msg.content }}
-                        <div v-if="msg.steps" class="mt-4 space-y-2">
-                             <div v-for="(step, sIdx) in msg.steps" :key="sIdx" class="flex items-center gap-3 p-2 rounded bg-slate-700/50" @click="toggleSubStep(i, sIdx)">
-                                 <div class="w-5 h-5 rounded-full border border-slate-500 flex items-center justify-center transition" :class="step.done ? 'bg-green-500 border-green-500' : ''">
-                                     <i v-if="step.done" data-lucide="check" class="w-3 h-3 text-white"></i>
-                                 </div>
-                                 <span :class="step.done ? 'line-through text-slate-500' : ''">{{ step.text }}</span>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div v-if="isAiLoading" class="text-slate-500 text-xs ml-4">AI 正在温柔地思考...</div>
-            </div>
-
-            <div class="p-4 bg-slate-800/80 backdrop-blur">
-                <div class="relative">
-                    <input v-model="chatInput" @keydown.enter="sendChat" placeholder="说点什么..." class="w-full bg-slate-700 p-4 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <button @click="sendChat" class="absolute right-2 top-2 p-2 bg-indigo-600 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
-                </div>
+                
+                <button @click="startFocusSession('flow')" class="w-full mt-4 py-4 bg-indigo-600 rounded-2xl text-white font-bold shadow-lg shadow-indigo-900/40">
+                    直接开始 (进入心流)
+                </button>
             </div>
         </div>
     </transition>
 
-    <div v-if="showAddTask" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 backdrop-blur-sm">
-        <div class="glass-modal w-full max-w-sm p-6 rounded-3xl">
-            <h3 class="text-lg font-bold mb-4">新的念头</h3>
-            <input v-model="newTaskTitle" placeholder="我想..." class="w-full bg-slate-800 p-4 rounded-xl mb-4 text-white outline-none">
-            <div class="mb-4">
-                <label class="text-xs text-slate-500 mb-2 block">截止时间 (可选)</label>
-                <input type="datetime-local" v-model="newTaskDeadline" class="w-full bg-slate-800 p-3 rounded-xl text-white text-sm">
+    <transition name="fade">
+        <div v-if="isFocusMode" class="fixed inset-0 z-50 glass-overlay flex flex-col items-center justify-center text-center">
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                 <div class="w-64 h-64 rounded-full bg-indigo-500/20 breathing-circle blur-3xl"></div>
+                 <div class="w-48 h-48 rounded-full bg-blue-500/20 breathing-circle blur-2xl" style="animation-delay: -2s"></div>
             </div>
-            <div class="flex gap-2">
-                <button @click="showAddTask = false" class="flex-1 py-3 text-slate-400">取消</button>
-                <button @click="addTask" class="flex-1 py-3 bg-indigo-600 rounded-xl font-bold">放下</button>
+
+            <div class="relative z-10 px-6">
+                <p class="text-slate-400 text-sm uppercase tracking-widest mb-4 animate-pulse">{{ focusType === 'countdown' ? '两分钟尝试' : '深度心流' }}</p>
+                <h2 class="text-2xl font-bold mb-12">{{ focusTask?.title }}</h2>
+                
+                <div class="text-7xl font-mono font-bold tracking-tighter tabular-nums mb-16 text-indigo-100 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                    {{ formatDuration(focusDuration) }}
+                </div>
+
+                <div class="flex flex-col gap-4 w-64 mx-auto">
+                    <button @click="completeFocusTask" class="w-full py-4 bg-green-600 hover:bg-green-500 rounded-full text-white font-bold text-lg shadow-[0_0_30px_rgba(34,197,94,0.4)] transition transform active:scale-95">
+                        我做完了
+                    </button>
+                    <button @click="exitFocusMode" class="text-slate-500 text-sm hover:text-white mt-4">
+                        暂时离开 / 取消
+                    </button>
+                    <button @click="whiteNoise = !whiteNoise" :class="whiteNoise ? 'text-indigo-400' : 'text-slate-600'" class="flex items-center justify-center gap-2 mt-2 text-xs">
+                        <i data-lucide="waves" class="w-4 h-4"></i> {{ whiteNoise ? '白噪音 On' : '白噪音 Off' }}
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div v-if="currentView === 'settings'" class="fixed inset-0 z-50 bg-slate-900 flex flex-col p-6">
-        <h2 class="text-2xl font-bold mb-6">设置</h2>
-        <label class="text-sm text-slate-400 mb-2">Google Gemini API Key</label>
-        <input v-model="apiKey" type="password" class="w-full bg-slate-800 p-4 rounded-xl mb-4 text-white">
-        <button @click="saveSettings" class="w-full py-4 bg-indigo-600 rounded-xl font-bold mb-4">保存</button>
-        <button @click="currentView = 'dashboard'" class="text-slate-500">返回</button>
-    </div>
+    </transition>
 
 </div>
 
@@ -311,345 +381,427 @@
 
     createApp({
         setup() {
-            // --- 核心数据 ---
-            const currentView = ref('dashboard');
-            const apiKey = ref(localStorage.getItem('df_key') || '');
-            const tasks = ref(JSON.parse(localStorage.getItem('df_tasks') || '[]'));
-            const energyLevel = ref(60); // 默认 60%
-            const lastActiveTime = ref(parseInt(localStorage.getItem('df_last_active') || Date.now()));
+            // --- Core State ---
+            const view = ref('dashboard');
+            const apiKey = ref(localStorage.getItem('gemini_key') || '');
+            const tempKey = ref('');
+            const energyLevel = ref(70);
+            const needsRescue = ref(false); // 24h无操作或有DDL时触发
             
-            // --- 日历状态 ---
-            const today = new Date();
-            const selectedDate = ref(today); // 默认选中今天
-            const calendarViewDate = ref(today);
+            // --- Task Data ---
+            const tasks = ref(JSON.parse(localStorage.getItem('deepflow_tasks_v4') || '[]'));
+            const lastActive = ref(Number(localStorage.getItem('last_active_time') || Date.now()));
+            
+            // --- Calendar Logic ---
             const isCalendarExpanded = ref(false);
+            const currentDate = ref(new Date()); // 当前选中的日期 filter
+            const calendarCursor = ref(new Date()); // 翻页游标
 
-            // --- UI 交互状态 ---
+            // --- Add Task ---
             const showAddTask = ref(false);
             const newTaskTitle = ref('');
+            const newTaskCategory = ref('琐事');
             const newTaskDeadline = ref('');
-            const showSoftStart = ref(false);
+
+            // --- Action Modal & Focus Mode ---
+            const showTaskActionModal = ref(false);
             const selectedTask = ref(null);
-            
-            // --- 专注模式状态 ---
             const isFocusMode = ref(false);
-            const activeFocusTask = ref(null);
-            const focusStartTime = ref(0);
-            const focusTimeDisplay = ref("00:00");
-            let focusTimerInterval = null;
+            const focusTask = ref(null);
+            const focusDuration = ref(0);
+            const focusType = ref('flow'); // 'flow' or 'countdown'
+            const whiteNoise = ref(false);
+            let timerInterval = null;
 
-            // --- AI 聊天状态 ---
+            // --- Chat/Panic ---
+            const panicMode = ref('chat');
             const chatHistory = ref([]);
-            const chatInput = ref('');
-            const isAiLoading = ref(false);
+            const userInput = ref('');
+            const isAiTyping = ref(false);
+            const currentSteps = ref([]);
+            const currentStepIndex = ref(0);
 
-            // ================== 计算属性 ==================
+            // ================== Computed & Logic ==================
 
-            // 1. 日历生成逻辑
-            const currentMonthName = computed(() => {
-                return calendarViewDate.value.toLocaleString('zh-CN', { month: 'long', year: 'numeric' });
-            });
-
-            const visibleCalendarDays = computed(() => {
-                const year = calendarViewDate.value.getFullYear();
-                const month = calendarViewDate.value.getMonth();
-                const days = [];
-                
-                if (!isCalendarExpanded.value) {
-                    // 折叠模式：只显示当前选中日期所在的那一周
-                    const current = new Date(selectedDate.value);
-                    const dayOfWeek = current.getDay(); // 0 (Sun) - 6 (Sat)
-                    const startOfWeek = new Date(current);
-                    startOfWeek.setDate(current.getDate() - dayOfWeek);
-                    
-                    for (let i = 0; i < 7; i++) {
-                        const d = new Date(startOfWeek);
-                        d.setDate(startOfWeek.getDate() + i);
-                        days.push(d);
-                    }
-                    return days;
-                } else {
-                    // 展开模式：显示当月所有日期 (简单的 7x5 网格逻辑)
-                    const firstDay = new Date(year, month, 1);
-                    const lastDay = new Date(year, month + 1, 0);
-                    // 补前面的空位
-                    for (let i = 0; i < firstDay.getDay(); i++) days.push(null);
-                    // 填日期
-                    for (let i = 1; i <= lastDay.getDate(); i++) {
-                        days.push(new Date(year, month, i));
-                    }
-                    return days;
-                }
-            });
-
-            // 2. 核心过滤器：日期 + 能量
-            const hiddenTaskCount = ref(0);
+            // 1. 能量过滤 + 日期过滤的核心逻辑
+            const activeTasks = computed(() => tasks.value.filter(t => !t.completed));
             
-            const filteredTasks = computed(() => {
-                // Step 1: 按日期过滤
-                let list = tasks.value.filter(t => !t.completed);
-                
-                // 只有当选中的是“今天”时，才应用能量过滤。如果是查看过去/未来，显示全部。
-                const isViewingToday = isSameDay(selectedDate.value, new Date());
-                
-                if (!isViewingToday) {
-                    // 如果查看特定日期，只显示该日期创建的 或 该日期截止的
-                    list = list.filter(t => isSameDay(new Date(t.createdAt), selectedDate.value) || (t.deadline && isSameDay(new Date(t.deadline), selectedDate.value)));
-                    hiddenTaskCount.value = 0;
-                    return list;
-                }
+            const dateFilteredTasks = computed(() => {
+                // 先筛选日期
+                const selY = currentDate.value.getFullYear();
+                const selM = currentDate.value.getMonth();
+                const selD = currentDate.value.getDate();
 
-                // Step 2: 能量过滤 (Energy Filter)
-                hiddenTaskCount.value = 0;
-                
-                // 排序：有DDL且临近的优先，否则按创建时间
-                list.sort((a, b) => {
-                    const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
-                    const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
-                    return timeA - timeB;
+                let list = activeTasks.value.filter(t => {
+                    // 如果任务有 Deadline，按 Deadline 归档到日期
+                    // 如果没有 Deadline，显示在创建日期 (这里简化逻辑，无DDL默认显示在今天)
+                    if (t.deadline) {
+                        const d = new Date(t.deadline);
+                        return d.getFullYear() === selY && d.getMonth() === selM && d.getDate() === selD;
+                    } else {
+                        // 无 DDL 的任务，始终显示在“今天”，或者你可以设计为显示在所有日子
+                        // 这里我们让无 DDL 任务仅在"今天"可见，防止污染历史
+                        const today = new Date();
+                        return selY === today.getFullYear() && selM === today.getMonth() && selD === today.getDate();
+                    }
                 });
 
+                return list.sort((a, b) => {
+                    // 紧急的在前
+                    if (a.deadline && !b.deadline) return -1;
+                    if (!a.deadline && b.deadline) return 1;
+                    return 0;
+                });
+            });
+
+            const visibleTasks = computed(() => {
+                const list = dateFilteredTasks.value;
+                // 能量过滤逻辑
                 if (energyLevel.value < 30) {
-                    // 极低能量：只显示最简单的 1 个 (假设字数少=简单，或者没有DDL)
-                    hiddenTaskCount.value = Math.max(0, list.length - 1);
-                    return list.slice(0, 1);
-                } else if (energyLevel.value < 60) {
-                    // 低能量：显示前 3 个
-                    hiddenTaskCount.value = Math.max(0, list.length - 3);
+                    // 极低能量：只显示最简单的1个 (字数最少 或 类别为琐事)
+                    if (list.length <= 1) return list;
+                    // 优先找琐事
+                    const trivial = list.find(t => t.category === '琐事');
+                    if (trivial) return [trivial];
+                    // 否则找字数最少的
+                    return [list.slice().sort((a, b) => a.title.length - b.title.length)[0]];
+                } 
+                else if (energyLevel.value < 60) {
+                    // 中低能量：显示前3个
                     return list.slice(0, 3);
                 }
-                
+                // 能量充足：全显
                 return list;
             });
 
-            // 3. 能量建议文案
-            const energyAdvice = computed(() => {
-                if (energyLevel.value < 30) return "别勉强，只做这一件小事就好。";
-                if (energyLevel.value < 60) return "保留精力，先处理重要的。";
-                return "状态不错，保持心流。";
-            });
-
-            // 4. Panic 按钮呼吸逻辑
-            const shouldPanicPulse = computed(() => {
+            // 2. 紧急状态检查
+            const checkRescueStatus = () => {
                 const now = Date.now();
-                const hoursInactive = (now - lastActiveTime.value) / (1000 * 60 * 60);
-                const hasOverdue = tasks.value.some(t => !t.completed && t.deadline && new Date(t.deadline) < now);
-                return hoursInactive > 24 || hasOverdue;
+                // 超过24小时未完成任何任务 (这里简化为未打开app)
+                const isInactive = (now - lastActive.value) > 24 * 60 * 60 * 1000;
+                // 或者有已经过期的任务
+                const hasOverdue = activeTasks.value.some(t => t.deadline && new Date(t.deadline) < now);
+                
+                needsRescue.value = isInactive || hasOverdue;
+                localStorage.setItem('last_active_time', now);
+            };
+
+            // 3. 日历生成器
+            const calendarDays = computed(() => {
+                const year = calendarCursor.value.getFullYear();
+                const month = calendarCursor.value.getMonth();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayDow = new Date(year, month, 1).getDay(); // 0 is Sunday
+                
+                const days = [];
+                // 填充空白
+                for(let i=0; i<firstDayDow; i++) {
+                    days.push({ key: `empty-${i}`, date: new Date(year, month, -i), inMonth: false });
+                }
+                
+                // 填充日期
+                for(let i=1; i<=daysInMonth; i++) {
+                    const d = new Date(year, month, i);
+                    // 检查状态
+                    const hasTask = tasks.value.some(t => !t.completed && isSameDay(new Date(t.deadline || Date.now()), d));
+                    const hasCompleted = tasks.value.some(t => t.completed && isSameDay(new Date(t.completedAt), d));
+                    
+                    days.push({
+                        key: i,
+                        date: d,
+                        inMonth: true,
+                        isToday: isSameDay(d, new Date()),
+                        isSelected: isSameDay(d, currentDate.value),
+                        hasTask, hasCompleted
+                    });
+                }
+
+                // 如果折叠，只显示当前周
+                if (!isCalendarExpanded.value) {
+                    // 找到当前选中的日期所在的周
+                    // 这里简化：只显示当前选中日期的一周 +/- 3天
+                    const centerIdx = days.findIndex(d => isSameDay(d.date, currentDate.value));
+                    if(centerIdx === -1) return days.slice(0, 7); // Fallback
+                    // 尝试居中
+                    let start = Math.max(0, centerIdx - 3);
+                    let end = Math.min(days.length, start + 7);
+                    if (end - start < 7) start = Math.max(0, end - 7);
+                    return days.slice(start, end);
+                }
+                return days;
             });
 
-            // ================== 方法 ==================
+            // ================== Actions ==================
 
-            // --- 日历相关 ---
-            const toggleCalendarMode = () => isCalendarExpanded.value = !isCalendarExpanded.value;
-            
-            const selectDate = (date) => {
-                if(date) selectedDate.value = date;
-            };
-            
-            const isSameDay = (d1, d2) => {
-                return d1.getFullYear() === d2.getFullYear() &&
-                       d1.getMonth() === d2.getMonth() &&
-                       d1.getDate() === d2.getDate();
+            const openTaskAction = (task) => {
+                selectedTask.value = task;
+                showTaskActionModal.value = true;
             };
 
-            const isSelectedDate = (date) => date && isSameDay(date, selectedDate.value);
-            
-            const hasTaskOnDate = (date) => {
-                if (!date) return false;
-                return tasks.value.some(t => isSameDay(new Date(t.createdAt), date) || (t.deadline && isSameDay(new Date(t.deadline), date)));
+            const startFocusSession = (type) => {
+                showTaskActionModal.value = false;
+                focusTask.value = selectedTask.value;
+                focusType.value = type;
+                isFocusMode.value = true;
+                
+                if (type === 'countdown') {
+                    focusDuration.value = 120; // 2 minutes
+                    timerInterval = setInterval(() => {
+                        focusDuration.value--;
+                        if (focusDuration.value <= 0) {
+                            clearInterval(timerInterval);
+                            // Timer ended logic could go here
+                            alert("2分钟到了！如果你想继续，请继续；如果想停下，你已经很棒了。");
+                        }
+                    }, 1000);
+                } else {
+                    focusDuration.value = 0;
+                    timerInterval = setInterval(() => {
+                        focusDuration.value++;
+                    }, 1000);
+                }
             };
 
-            const hasCompletedTask = (date) => {
-                if (!date) return false;
-                return tasks.value.some(t => t.completed && isSameDay(new Date(t.completedAt), date));
+            const completeFocusTask = () => {
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+                exitFocusMode();
+                if (focusTask.value) {
+                    const t = tasks.value.find(i => i.id === focusTask.value.id);
+                    if(t) {
+                        t.completed = true;
+                        t.completedAt = new Date().toISOString();
+                    }
+                }
+                view.value = 'dashboard';
             };
 
-            // --- 任务管理 ---
+            const exitFocusMode = () => {
+                isFocusMode.value = false;
+                clearInterval(timerInterval);
+                focusTask.value = null;
+            };
+
+            const startAiBreakdown = () => {
+                showTaskActionModal.value = false;
+                startPanicMode(selectedTask.value.title);
+            };
+
+            // Gemini Call
+            const startPanicMode = (initialTaskTitle) => {
+                view.value = 'panic';
+                panicMode.value = 'chat';
+                chatHistory.value = [];
+                currentSteps.value = [];
+                
+                const greeting = initialTaskTitle 
+                    ? `我看你想做 "${initialTaskTitle}"，但有点困难。我们把它切碎好吗？`
+                    : `嘿，感觉卡住了？告诉我怎么了。`;
+                
+                chatHistory.value.push({ role: 'assistant', content: greeting });
+                if (initialTaskTitle) userInput.value = `我要做 ${initialTaskTitle}，帮我拆解。`;
+            };
+
+            const sendMessage = async () => {
+                if(!userInput.value) return;
+                const text = userInput.value;
+                chatHistory.value.push({ role: 'user', content: text });
+                userInput.value = '';
+                isAiTyping.value = true;
+
+                const systemPrompt = `你是一位极具同理心的认知行为疗法(CBT)治疗师。
+                用户正处于执行功能障碍中。你的原则：
+                1. 永远不要讲大道理。
+                2. 关注"微小的第一步"（物理动作，如拿起手机，站起来）。
+                3. 语气温柔、接纳。
+                
+                如果用户需要拆解任务，请务必在回复的最后，附上一个纯JSON数组，包含3-6个极简步骤。
+                格式示例：
+                好的，我们慢慢来。
+                ["放下手机", "深呼吸", "站起来", "走到桌边"]
+                `;
+
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.value}`;
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ 
+                                role: "user",
+                                parts: [{ text: systemPrompt + "\nUser: " + text }] 
+                            }]
+                        })
+                    });
+                    const data = await res.json();
+                    const reply = data.candidates[0].content.parts[0].text;
+                    
+                    // Parse JSON
+                    const jsonMatch = reply.match(/\[([\s\S]*?)\]/);
+                    if (jsonMatch) {
+                        try {
+                            const steps = JSON.parse(jsonMatch[0]);
+                            const cleanText = reply.replace(jsonMatch[0], '').trim();
+                            chatHistory.value.push({
+                                role: 'assistant',
+                                content: cleanText,
+                                actions: [{ label: '开始微步骤', type: 'steps', data: steps }]
+                            });
+                        } catch(e) { chatHistory.value.push({ role: 'assistant', content: reply }); }
+                    } else {
+                        chatHistory.value.push({ role: 'assistant', content: reply });
+                    }
+
+                } catch(e) {
+                    chatHistory.value.push({ role: 'assistant', content: "网络有点累了，就像我们一样... (请检查 Key)" });
+                } finally {
+                    isAiTyping.value = false;
+                    nextTick(() => {
+                        const div = document.getElementById('chat-container');
+                        if(div) div.scrollTop = div.scrollHeight;
+                    });
+                }
+            };
+
+            const handleAiAction = (act, idx) => {
+                chatHistory.value[idx].actionTaken = true;
+                if(act.type === 'steps') {
+                    currentSteps.value = act.data;
+                    currentStepIndex.value = 0;
+                    panicMode.value = 'steps';
+                }
+            };
+
+            const completeStep = () => {
+                confetti({ particleCount: 100, spread: 60, origin: { y: 0.8 } });
+                if(currentStepIndex.value < currentSteps.value.length - 1) {
+                    setTimeout(() => currentStepIndex.value++, 500);
+                } else {
+                    alert("启动成功。保持这个惯性。");
+                    view.value = 'dashboard';
+                }
+            };
+
+            // ================== Utils ==================
             const addTask = () => {
-                if (!newTaskTitle.value) return;
+                if(!newTaskTitle.value) return;
                 tasks.value.push({
                     id: Date.now(),
                     title: newTaskTitle.value,
+                    category: newTaskCategory.value,
                     deadline: newTaskDeadline.value || null,
                     completed: false,
                     createdAt: new Date().toISOString()
                 });
                 showAddTask.value = false;
                 newTaskTitle.value = '';
-                newTaskDeadline.value = '';
-                saveData();
             };
 
+            const saveKey = () => {
+                localStorage.setItem('gemini_key', tempKey.value);
+                apiKey.value = tempKey.value;
+                view.value = 'dashboard';
+            };
+
+            const isSameDay = (d1, d2) => {
+                return d1.getFullYear() === d2.getFullYear() &&
+                       d1.getMonth() === d2.getMonth() &&
+                       d1.getDate() === d2.getDate();
+            };
+
+            const formatMonth = (d) => d.toLocaleString('zh-CN', { month: 'long', year: 'numeric' });
+            
+            const formatTimeShort = (iso) => {
+                const d = new Date(iso);
+                return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()<10?'0':''}${d.getMinutes()}`;
+            };
+
+            const formatDuration = (sec) => {
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                return `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            };
+
+            const getEnergyColor = (text = false) => {
+                if (energyLevel.value < 30) return text ? 'text-red-400' : 'text-red-500 fill-red-500';
+                if (energyLevel.value < 60) return text ? 'text-yellow-400' : 'text-yellow-500 fill-yellow-500';
+                return text ? 'text-green-400' : 'text-green-500 fill-green-500';
+            };
+            
             const isUrgent = (task) => {
                 if (!task.deadline) return false;
                 const diff = new Date(task.deadline) - new Date();
                 return diff > 0 && diff < 24 * 60 * 60 * 1000; // 24小时内
             };
 
-            const getTaskSizeClass = (task) => {
-                // 简单的视觉逻辑：任务越重要(有DDL)或字数少(简洁)，卡片可能越大
-                return task.deadline ? 'col-span-2' : 'col-span-1';
-            };
-
-            const formatDeadline = (iso) => {
-                const d = new Date(iso);
-                return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()<10?'0':''}${d.getMinutes()}`;
-            };
-
-            // --- 软启动 & 专注模式 ---
-            const openSoftStart = (task) => {
-                selectedTask.value = task;
-                showSoftStart.value = true;
-            };
-
-            const startFocusMode = (task) => {
-                showSoftStart.value = false;
-                activeFocusTask.value = task;
-                isFocusMode.value = true;
-                focusStartTime.value = Date.now();
+            const getBubbleStyle = (task) => {
+                let size = 110 + (task.title.length * 2);
+                if (task.category === '琐事') size *= 0.8;
+                if (isUrgent(task)) size *= 1.1;
                 
-                // 启动正计时
-                focusTimerInterval = setInterval(() => {
-                    const diff = Math.floor((Date.now() - focusStartTime.value) / 1000);
-                    const m = Math.floor(diff / 60);
-                    const s = diff % 60;
-                    focusTimeDisplay.value = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                }, 1000);
+                const colors = {
+                    '工作': 'rgba(56, 189, 248, 0.15)',
+                    '琐事': 'rgba(148, 163, 184, 0.15)',
+                    '生活': 'rgba(167, 139, 250, 0.15)'
+                };
+                return {
+                    width: `${Math.min(size, 160)}px`,
+                    height: `${Math.min(size, 160)}px`,
+                    background: colors[task.category] || colors['工作'],
+                    borderColor: isUrgent(task) ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.1)'
+                };
             };
 
-            const exitFocusMode = () => {
-                isFocusMode.value = false;
-                clearInterval(focusTimerInterval);
-                focusTimeDisplay.value = "00:00";
+            const changeMonth = (delta) => {
+                const d = new Date(calendarCursor.value);
+                d.setMonth(d.getMonth() + delta);
+                calendarCursor.value = d;
             };
 
-            const completeTaskInFocus = () => {
-                // 撒花
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                
-                // 标记完成
-                const t = tasks.value.find(x => x.id === activeFocusTask.value.id);
-                if (t) {
-                    t.completed = true;
-                    t.completedAt = new Date().toISOString();
-                }
-                saveData();
-                
-                setTimeout(() => exitFocusMode(), 1500);
+            const selectDate = (day) => {
+                currentDate.value = day.date;
+                if(!day.inMonth) calendarCursor.value = day.date;
             };
 
-            // --- Panic Mode & AI ---
-            const startPanicMode = () => {
-                currentView.value = 'panic';
-                if (chatHistory.value.length === 0) {
-                    chatHistory.value.push({ 
-                        role: 'assistant', 
-                        content: '我是这里的 AI 咨询师。我知道你可能觉得有点累，或者不知所措。这完全正常。\n\n我们只需要做一件事：把手机放在一边，深呼吸一次。告诉我，什么事情让你觉得最难开始？' 
-                    });
-                }
+            const getCurrentGreeting = () => {
+                const h = new Date().getHours();
+                if(h < 6) return '深夜的宁静。';
+                if(h < 12) return '早安，慢慢来。';
+                if(h < 18) return '午后，保持呼吸。';
+                return '晚上好，放下焦虑。';
             };
 
-            const triggerAiBreakdown = (task) => {
-                showSoftStart.value = false;
-                startPanicMode();
-                chatInput.value = `帮我拆解任务：${task.title}。我觉得很难开始。`;
-                sendChat();
+            const negotiateStep = () => {
+                panicMode.value = 'chat';
+                userInput.value = `步骤 "${currentSteps.value[currentStepIndex.value]}" 还是有点难，能再拆小点吗？`;
+                sendMessage();
             };
-
-            const sendChat = async () => {
-                if (!chatInput.value.trim() || !apiKey.value) return;
-                
-                const userMsg = chatInput.value;
-                chatHistory.value.push({ role: 'user', content: userMsg });
-                chatInput.value = '';
-                isAiLoading.value = true;
-
-                // 心理咨询师 Prompt
-                const systemPrompt = `你是一位富有同情心的 CBT (认知行为疗法) 治疗师。用户患有执行功能障碍。
-                
-                原则：
-                1. 永远不要说教。
-                2. 将任务拆解为极小的、物理上的步骤 (例如："走到桌子旁", "打开电脑盖", "输入标题")。
-                3. 第一步必须简单到荒谬，不需要意志力。
-                
-                如果用户请求拆解任务，请在回复的最后，附带一个纯 JSON 数组，格式为：[{"text": "第一步...", "done": false}, {"text": "第二步...", "done": false}]。
-                不要用 Markdown 代码块包裹 JSON，直接放在文本最后即可。`;
-
-                try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.value}`;
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ 
-                                role: "user", 
-                                parts: [{ text: systemPrompt + "\n\nUser: " + userMsg }] 
-                            }]
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    let replyText = data.candidates[0].content.parts[0].text;
-                    
-                    // 解析 JSON 步骤
-                    let steps = null;
-                    const jsonMatch = replyText.match(/\[\s*\{.*\}\s*\]/s);
-                    if (jsonMatch) {
-                        try {
-                            steps = JSON.parse(jsonMatch[0]);
-                            replyText = replyText.replace(jsonMatch[0], '').trim();
-                        } catch (e) { console.error("JSON parse fail", e); }
-                    }
-
-                    chatHistory.value.push({ role: 'assistant', content: replyText, steps: steps });
-                    nextTick(() => document.getElementById('chat-box').scrollTop = 9999);
-
-                } catch (e) {
-                    chatHistory.value.push({ role: 'assistant', content: "抱歉，我现在连接宇宙有点困难。请检查网络或 API Key。" });
-                } finally {
-                    isAiLoading.value = false;
-                }
-            };
-
-            const toggleSubStep = (msgIndex, stepIndex) => {
-                chatHistory.value[msgIndex].steps[stepIndex].done = !chatHistory.value[msgIndex].steps[stepIndex].done;
-                if (chatHistory.value[msgIndex].steps[stepIndex].done) {
-                    confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 }, shapes: ['circle'] });
-                }
-            };
-
-            // --- 持久化 ---
-            const saveSettings = () => {
-                localStorage.setItem('df_key', apiKey.value);
-                currentView.value = 'dashboard';
-            };
-            
-            const saveData = () => {
-                localStorage.setItem('df_tasks', JSON.stringify(tasks.value));
-                lastActiveTime.value = Date.now();
-                localStorage.setItem('df_last_active', lastActiveTime.value);
-            };
-            
-            watch(tasks, saveData, { deep: true });
 
             onMounted(() => {
                 lucide.createIcons();
-                if(!apiKey.value) currentView.value = 'settings';
-                saveData(); // 更新活跃时间
-            });
-
-            watch([currentView, showSoftStart, isFocusMode, filteredTasks], () => {
-                setTimeout(() => lucide.createIcons(), 100);
+                checkRescueStatus();
+                watch(tasks, () => {
+                    localStorage.setItem('deepflow_tasks_v4', JSON.stringify(tasks.value));
+                    checkRescueStatus();
+                }, { deep: true });
+                watch(view, () => nextTick(() => lucide.createIcons()));
             });
 
             return {
-                currentView, apiKey, energyLevel, energyAdvice,
-                isCalendarExpanded, currentMonthName, visibleCalendarDays, toggleCalendarMode, selectDate, isSelectedDate, hasTaskOnDate, hasCompletedTask,
-                filteredTasks, hiddenTaskCount, showAddTask, newTaskTitle, newTaskDeadline, addTask, isUrgent, getTaskSizeClass, formatDeadline,
-                showSoftStart, selectedTask, openSoftStart, startFocusMode, triggerAiBreakdown,
-                isFocusMode, activeFocusTask, focusTimeDisplay, exitFocusMode, completeTaskInFocus,
-                shouldPanicPulse, startPanicMode,
-                chatHistory, chatInput, isAiLoading, sendChat, toggleSubStep, saveSettings
+                view, apiKey, tempKey, energyLevel, saveKey,
+                tasks, activeTasks, dateFilteredTasks, visibleTasks,
+                showAddTask, newTaskTitle, newTaskCategory, newTaskDeadline, addTask,
+                
+                // Calendar
+                calendarDays, isCalendarExpanded, currentDate, calendarCursor, changeMonth, formatMonth, selectDate,
+
+                // Chat
+                chatHistory, userInput, isAiTyping, sendMessage, panicMode, currentSteps, currentStepIndex, stepProgress, handleAiAction, completeStep, negotiateStep,
+
+                // Focus & Modal
+                showTaskActionModal, selectedTask, openTaskAction, startFocusSession, isFocusMode, focusTask, focusDuration, focusType, formatDuration, completeFocusTask, exitFocusMode, whiteNoise, startAiBreakdown,
+
+                // Utils
+                formatTimeShort, getEnergyColor, isUrgent, getBubbleStyle, needsRescue, startPanicMode, getCurrentGreeting, getEnergyColor
             };
         }
     }).mount('#app');
